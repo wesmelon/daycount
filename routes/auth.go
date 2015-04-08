@@ -143,7 +143,7 @@ func hashPassword(password string) (string, string) {
 
     hash, err := bcrypt.GenerateFromPassword(buffer.Bytes(), 10)
     if err != nil {
-        panic(err)
+        log.Fatal(err)
     }
 
     return string(hash), salt

@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"log"
 	"time"
 	"strconv"
     "net/http"
@@ -26,7 +27,7 @@ func GetCategoryById(w http.ResponseWriter, r *http.Request) {
 	if c, auth := getCategory(w, r, vars["id"]); auth { //session check
 		w.WriteHeader(http.StatusOK)
 		if err := json.NewEncoder(w).Encode(c); err != nil {
-	       	panic(err)
+	       	log.Fatal(err)
 	    }
 	}
 }
@@ -39,13 +40,13 @@ func GetCategoriesByUser(w http.ResponseWriter, r *http.Request) {
 
 	uid, err := strconv.Atoi(vars["uid"])
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	if auth := isUserAuthorized(w, r, uid); auth {
 		rows, err := db.Query("SELECT id, uid, name, picture, creation_time FROM categories WHERE uid = $1", vars["uid"])
 		if err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 		defer rows.Close()
 
@@ -53,7 +54,7 @@ func GetCategoriesByUser(w http.ResponseWriter, r *http.Request) {
 		for rows.Next() {
 			err := rows.Scan(&c.Id, &c.UserId, &c.Name, &c.Picture, &c.CreatedTime)
 			if err != nil {
-				panic(err)
+				log.Fatal(err)
 			}
 
 			categories = append(categories, c)
@@ -61,13 +62,13 @@ func GetCategoriesByUser(w http.ResponseWriter, r *http.Request) {
 
 		w.WriteHeader(http.StatusOK)
 		if err := json.NewEncoder(w).Encode(categories); err != nil {
-	       	panic(err)
+	       	log.Fatal(err)
 	    }
 
 	    err = rows.Err()
 
 		if err != nil {
-	    	panic(err)
+	    	log.Fatal(err)
 	    }
 	}
 }
@@ -80,7 +81,7 @@ func PostCategory(w http.ResponseWriter, r *http.Request) {
 	if err := decoder.Decode(&category); err != nil {
         w.WriteHeader(422) // unprocessable entity
         if err := json.NewEncoder(w).Encode(err); err != nil {
-            panic(err)
+            log.Fatal(err)
         }
     }
 
@@ -89,12 +90,12 @@ func PostCategory(w http.ResponseWriter, r *http.Request) {
 		err := db.QueryRow("INSERT INTO categories(uid, name, picture, creation_time) VALUES ($1, $2, $3, $4) RETURNING id",
 			category.UserId, category.Name, category.Picture, category.CreatedTime).Scan(&category.Id)
 		if err != nil {
-	    	panic(err)
+	    	log.Fatal(err)
 	    }
 
 		w.WriteHeader(http.StatusCreated)
 	    if err := json.NewEncoder(w).Encode(category); err != nil {
-	        panic(err)
+	        log.Fatal(err)
 	    }
 	}
 }
@@ -108,7 +109,7 @@ func PutCategory(w http.ResponseWriter, r *http.Request) {
 	if err := decoder.Decode(&category); err != nil {
         w.WriteHeader(422) // unprocessable entity
         if err := json.NewEncoder(w).Encode(err); err != nil {
-            panic(err)
+            log.Fatal(err)
         }
     }
 
@@ -116,12 +117,12 @@ func PutCategory(w http.ResponseWriter, r *http.Request) {
 		err := db.QueryRow("UPDATE categories SET uid = $1, name = $2, picture = $3, creation_time = $4 WHERE id = $5 RETURNING id", 
 			category.UserId, category.Name, category.Picture, category.CreatedTime, vars["id"]).Scan(&category.Id)
 	    if err != nil {
-			panic(err)
+			log.Fatal(err)
 	    }
 
 		w.WriteHeader(http.StatusAccepted)
 	    if err := json.NewEncoder(w).Encode(category); err != nil {
-	        panic(err)
+	        log.Fatal(err)
 	    }
 	}
 }
@@ -131,13 +132,13 @@ func DeleteCategory(w http.ResponseWriter, r *http.Request) {
 	if c, auth := getCategory(w, r, vars["id"]); auth { //session check
 	    _, err := db.Exec("DELETE FROM categories WHERE id = $1", vars["id"])
 	    if err != nil {
-			panic(err)
+			log.Fatal(err)
 	    }
 	    w.WriteHeader(http.StatusAccepted)
 
 		w.Header().Set("Content-Type", "application/json")
 		if err := json.NewEncoder(w).Encode(c); err != nil {
-	       	panic(err)
+	       	log.Fatal(err)
 	    }
 	}
 }

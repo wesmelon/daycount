@@ -1,8 +1,8 @@
 package main
 
 import (
+	"os"
     "log"
-    "fmt"
     "net/http"
     "github.com/wkless/ctd/routes"
 )
@@ -10,6 +10,11 @@ import (
 func main() {
     router := routes.NewRouter()
 
-    fmt.Printf("listening 8080\n")
-    log.Fatal(http.ListenAndServe(":8080", router))
+    var listen string = os.Getenv("LISTEN")
+    if listen == "" {
+    	listen = ":8080"
+    }
+
+    log.Println("listening on", listen)
+    log.Fatal(http.ListenAndServe(listen, router))
 }
