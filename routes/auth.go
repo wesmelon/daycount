@@ -15,6 +15,8 @@ import (
     "github.com/gorilla/securecookie"
 )
 
+const SaltSize = 16
+
 var CookieHandler = securecookie.New(
     securecookie.GenerateRandomKey(64),
     securecookie.GenerateRandomKey(32))
@@ -67,7 +69,7 @@ func clearSession(response http.ResponseWriter) {
 func authenticatePassword(email, password string, response http.ResponseWriter) bool {
     var id int
     var dbUserEmail, dbPasswordHash, dbPasswordSalt string
-    err = db.QueryRow("SELECT id, email, password_hash, password_salt FROM users WHERE email = $1", 
+    err := db.QueryRow("SELECT id, email, password_hash, password_salt FROM users WHERE email = $1", 
         email).Scan(&id, &dbUserEmail, &dbPasswordHash, &dbPasswordSalt)
     if err != nil {
         return false
@@ -93,8 +95,6 @@ const signupPage = `
     <input type="Fullname" id="Fullname" name="Fullname">
     <button type="submit">Login</button>
 </form>`
-
-const SaltSize = 16
 
 func SignupHandler(response http.ResponseWriter, request *http.Request) {
     fmt.Fprintf(response, signupPage)
@@ -152,7 +152,7 @@ func hashPassword(password string) (string, string) {
 func storeUser(user models.User) {
     const layout = "2006-01-02 15:04:05"
 
-    _, err = db.Exec("INSERT INTO users(email, full_name, password_hash, password_salt, is_disabled, is_activated, creation_time, last_login_time) VALUES($1, $2, $3, $4, $5, $6, $7, $8)", 
+    _, err := db.Exec("INSERT INTO users(email, full_name, password_hash, password_salt, is_disabled, is_activated, creation_time, last_login_time) VALUES($1, $2, $3, $4, $5, $6, $7, $8)", 
                             user.Email, user.FullName, user.PasswordHash, user.PasswordSalt, strconv.FormatBool(user.IsDisabled),
                             strconv.FormatBool(user.IsActivated), user.CreatedTime.Format(layout), user.LastLoginTime.Format(layout))
     if err != nil {

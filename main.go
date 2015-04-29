@@ -8,6 +8,7 @@ import (
 )
 
 func main() {
+    routes.InitDb();
     router := routes.NewRouter()
 
     var listen string = os.Getenv("LISTEN")

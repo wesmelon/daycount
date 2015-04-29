@@ -11,7 +11,7 @@ import (
 
 func getContainer(w http.ResponseWriter, r *http.Request, id string) (models.Container, bool) {
 	var c models.Container
-	err = db.QueryRow("SELECT id, uid, cid, name, description, time, is_public FROM containers WHERE id = $1", 
+	db.QueryRow("SELECT id, uid, cid, name, description, time, is_public FROM containers WHERE id = $1", 
 		id).Scan(&c.Id, &c.UserId, &c.CategoryId, &c.Name, &c.Description, &c.Time, &c.IsPublic)
 
 	auth := isUserAuthorized(w, r, c.UserId)

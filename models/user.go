@@ -2,6 +2,11 @@ package models
 
 import "time"
 
+type UserIdAndEmail struct {
+    Id              string
+    Email           string
+}
+
 type User struct {
 	Id				string
     Email			string

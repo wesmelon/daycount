@@ -12,7 +12,7 @@ import (
 
 func getCategory(w http.ResponseWriter, r *http.Request, id string) (models.Category, bool) {
 	var c models.Category
-	err = db.QueryRow("SELECT id, uid, name, picture, creation_time FROM categories WHERE id = $1", 
+	db.QueryRow("SELECT id, uid, name, picture, creation_time FROM categories WHERE id = $1", 
 		id).Scan(&c.Id, &c.UserId, &c.Name, &c.Picture, &c.CreatedTime)
 
 	auth := isUserAuthorized(w, r, c.UserId)

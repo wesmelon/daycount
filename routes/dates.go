@@ -30,7 +30,7 @@ func GetDateById(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	if isUserAuthorized(w, r, getUidOfDate(vars["id"])) {
-		err = db.QueryRow("SELECT id, cid, name, type, time, icon, content FROM dates WHERE id = $1", 
+		db.QueryRow("SELECT id, cid, name, type, time, icon, content FROM dates WHERE id = $1", 
 			vars["id"]).Scan(&d.Id, &d.ContainerId, &d.Name, &d.Type, &d.Time, &d.Icon, &d.Content)
 		
 		w.WriteHeader(http.StatusOK)
