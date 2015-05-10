@@ -2,11 +2,13 @@ package routes
 
 import (
 	"log"
+    "net/http"
     "database/sql"
     "github.com/gorilla/mux"
 )
 
-const src = "C:/Users/Wesley/Desktop/ctd/src/github.com/wkless/ctd/templates/"
+const root = "C:/Users/Wesley/Desktop/ctd/src/github.com/wkless/ctd/"
+const tmpl = "C:/Users/Wesley/Desktop/ctd/src/github.com/wkless/ctd/templates/"
 var db* sql.DB
 
 func InitDb() {
@@ -27,5 +29,8 @@ func NewRouter() *mux.Router {
             HandlerFunc(route.HandlerFunc)
     }
 
+    router.PathPrefix("/static").Handler(http.StripPrefix("/static", http.FileServer(http.Dir(root + "static/"))))
+    router.PathPrefix("/bower").Handler(http.StripPrefix("/bower", http.FileServer(http.Dir(root + "bower_components/"))))
+    
     return router
 }

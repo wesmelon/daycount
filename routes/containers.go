@@ -72,6 +72,47 @@ func GetContainersByUser(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func GetContainersByCategory(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	var c models.Container
+
+	w.Header().Set("Content-Type", "application/json")
+
+	uid, err := strconv.Atoi(vars["cid"])
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if auth := isUserAuthorized(w, r, uid); auth {
+		rows, err := db.Query("SELECT id, uid, cid, name, description, time, is_public FROM containers WHERE cid = $1", vars["uid"])
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer rows.Close()
+
+		var containers models.Containers
+		for rows.Next() {
+			err := rows.Scan(&c.Id, &c.UserId, &c.CategoryId, &c.Name, &c.Description, &c.Time, &c.IsPublic)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			containers = append(containers, c)
+		}
+
+		w.WriteHeader(http.StatusOK)
+		if err := json.NewEncoder(w).Encode(containers); err != nil {
+	       	log.Fatal(err)
+	    }
+
+	    err = rows.Err()
+
+		if err != nil {
+	    	log.Fatal(err)
+	    }
+	}
+}
+
 func PostContainer(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	var container models.Container

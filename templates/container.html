@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="containerPageApp">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <title>Daycount</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/bower/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap theme -->
+    <link href="/bower/bootstrap/dist/css/bootstrap-theme.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="/static/css/main.css" rel="stylesheet">
+  </head>
+
+  <body ng-controller="ContainerListCtrl">
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <ul class="nav navbar-nav">
+        <li><a href="home">Home</a></li>
+      </ul>
+    </nav>
+
+    <div class="container">
+      <select ng-model="orderProp">
+        <option value="name">Alphabetical</option>
+        <option value="time">Time</option>
+      </select>
+
+      <ul>
+        <li ng-repeat="date in dates | orderBy:orderProp">
+          <span>{{date.name}}</span>
+          <p>{{date.type}}</p>
+          <p>{{date.time}}</p>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <script src="/bower/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="/bower/angular/angular.js"></script>
+
+    <script>
+    var containerPageApp = angular.module('containerPageApp', []);
+
+      containerPageApp.controller('ContainerListCtrl', ['$scope', '$http', 
+        function ($scope, $http) {
+        $http.get('/api/dates/container/<<.Cid>>').success(function(data) {
+          $scope.dates = data;
+        });
+
+        $scope.orderProp = 'name';
+      }]);
+    </script>
+
+  </body>
+</html>

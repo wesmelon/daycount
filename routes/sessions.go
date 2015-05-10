@@ -38,3 +38,12 @@ func isUserAuthorized(w http.ResponseWriter, r *http.Request, uid int) bool {
     http.Redirect(w, r, "/", http.StatusUnauthorized)
     return false
 }
+
+
+func authHandler(fn func(http.ResponseWriter, *http.Request)) http.HandlerFunc {
+    return func(w http.ResponseWriter, r *http.Request) {
+        if auth := isUserAuthorized(w, r, 0); auth {
+            fn(w, r)
+        }
+    }
+}

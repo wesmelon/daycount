@@ -1,7 +1,6 @@
 package routes
 
 import (
-    "fmt"
     "bytes"
     "time"
     "log"
@@ -33,12 +32,12 @@ func LoginHandler(response http.ResponseWriter, request *http.Request) {
             redirectTarget = "/"
         }
     }
-    http.Redirect(response, request, redirectTarget, 302)
+    http.Redirect(response, request, redirectTarget, http.StatusFound)
 }
 
 func LogoutHandler(response http.ResponseWriter, request *http.Request) {
     clearSession(response)
-    http.Redirect(response, request, "/", 302)
+    http.Redirect(response, request, "/", http.StatusFound)
 }
 
 func setSession(id, email string, response http.ResponseWriter) {
@@ -84,26 +83,10 @@ func authenticatePassword(email, password string, response http.ResponseWriter) 
     return true
 }
 
-const signupPage = `
-<h1>Signup</h1>
-<form method="post" action="/signup">
-    <label for="Email">Email</label>
-    <input type="Email" id="Email" name="Email">
-    <label for="password">Password</label>
-    <input type="password" id="password" name="password">
-    <label for="Fullname">Fullname</label>
-    <input type="Fullname" id="Fullname" name="Fullname">
-    <button type="submit">Login</button>
-</form>`
-
-func SignupHandler(response http.ResponseWriter, request *http.Request) {
-    fmt.Fprintf(response, signupPage)
-}
-
 func GoSignup(response http.ResponseWriter, request *http.Request) {
-     email := request.FormValue("Email")
-     pass := request.FormValue("password")
-     fullname := request.FormValue("Fullname")
+     email := request.FormValue("inputEmail")
+     pass := request.FormValue("inputPassword")
+     fullname := request.FormValue("inputName")
      redirectTarget := "/"
      if email != "" && pass != "" && fullname != "" {
         hash, salt := hashPassword(pass);
@@ -124,7 +107,7 @@ func GoSignup(response http.ResponseWriter, request *http.Request) {
 
         redirectTarget = "/"
     }
-    http.Redirect(response, request, redirectTarget, 302)
+    http.Redirect(response, request, redirectTarget, http.StatusFound)
 }
 
 func hashPassword(password string) (string, string) {
