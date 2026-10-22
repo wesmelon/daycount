@@ -1,7 +1,0 @@
-{
-	"name":"countingdays",
-	"version":"0.0.1",
-	"dependencies": {
-		"angular": "1.3.15"
-	}
-}
