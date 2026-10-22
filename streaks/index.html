@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#174e40" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Daycount" />
+    <title>Daycount · A little, every day</title>
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" href="icon.svg" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main>
+      <header>
+        <a class="brand" href="./"><span>◒</span> daycount</a
+        ><button id="backup" class="quiet">Backup & settings</button>
+      </header>
+      <section class="intro">
+        <p class="eyebrow" id="today"></p>
+        <h1>A little,<br /><em>every day.</em></h1>
+        <p>Small actions. A story worth keeping.</p>
+      </section>
+      <section class="summary" aria-label="Daily progress">
+        <div>
+          <span class="eyebrow">YOUR DAILY MOMENTUM</span>
+          <h2 id="progress">0 of 0 complete</h2>
+        </div>
+        <span id="progressIcon">↗</span
+        ><progress id="dailyProgress" max="1" value="0"></progress>
+      </section>
+      <div class="section-title">
+        <h2>Your rituals <span id="count"></span></h2>
+        <button id="newHabit" class="primary">+ New category</button>
+      </div>
+      <section id="habits" class="habits" aria-label="Categories"></section>
+      <section id="detail" hidden>
+        <div class="section-title">
+          <div>
+            <p class="eyebrow">A DAY AT A TIME</p>
+            <h2 id="detailName"></h2>
+          </div>
+          <button id="editHabit" class="quiet">Edit category</button>
+        </div>
+        <div class="detail-grid">
+          <article class="panel">
+            <div class="section-title">
+              <h3 id="monthTitle"></h3>
+              <div>
+                <button id="prevMonth" aria-label="Previous month">‹</button
+                ><button id="nextMonth" aria-label="Next month">›</button>
+              </div>
+            </div>
+            <div class="week">
+              <span>Su</span><span>Mo</span><span>Tu</span><span>We</span
+              ><span>Th</span><span>Fr</span><span>Sa</span>
+            </div>
+            <div id="calendar" class="calendar"></div>
+            <p class="hint">Tap a date to record a day or add a note.</p>
+            <button id="addHistory" class="wide">
+              + Add past streak / date range
+            </button>
+          </article>
+          <article class="panel">
+            <p class="eyebrow">MAKE IT A MILESTONE</p>
+            <h3>Consistency looks good on you.</h3>
+            <div id="rewards" class="rewards"></div>
+            <p class="hint">
+              Badges celebrate your longest consecutive streak, including
+              historical entries.
+            </p>
+          </article>
+        </div>
+        <article class="panel history">
+          <div class="section-title">
+            <h3>Your record</h3>
+            <span id="totalDays" class="hint"></span>
+          </div>
+          <div id="history"></div>
+        </article>
+      </section>
+      <footer>
+        Made for the long run.<br /><span
+          >Saved on this device · Export a backup to keep your progress
+          safe.</span
+        >
+      </footer>
+    </main>
+    <dialog id="editor">
+      <form id="editorForm">
+        <div class="section-title">
+          <h2 id="dialogTitle"></h2>
+          <button type="button" id="closeDialog" aria-label="Close dialog">
+            ✕
+          </button>
+        </div>
+        <div id="fields"></div>
+        <p id="formError" role="alert"></p>
+        <div id="formActions" class="actions"></div>
+      </form>
+    </dialog>
+    <div id="toast" role="status" aria-live="polite"></div>
+    <script type="module" src="app.mjs"></script>
+  </body>
+</html>
