@@ -1,3 +1,4 @@
+import { markComplete } from "./shortcuts.mjs";
 import {
   today,
   shift,
@@ -26,7 +27,7 @@ try {
     100,
   );
 }
-selected = data.habits[0]?.id;
+selected = data.habits.find(h => !h.archived)?.id;
 function notify(s) {
   $("#toast").textContent = s;
   $("#toast").style.display = "block";
@@ -77,14 +78,15 @@ function render() {
       day: "numeric",
     })
     .toUpperCase();
-  const done = data.habits.filter((h) => h.entries[date]).length;
-  $("#progress").textContent = `${done} of ${data.habits.length} complete`;
-  $("#dailyProgress").max = data.habits.length || 1;
+  const active = data.habits.filter(h => !h.archived);
+  const done = active.filter((h) => h.entries[date]).length;
+  $("#progress").textContent = `${done} of ${active.length} complete`;
+  $("#dailyProgress").max = active.length || 1;
   $("#dailyProgress").value = done;
-  $("#count").textContent = data.habits.length;
+  $("#count").textContent = active.length;
   const list = $("#habits");
   list.replaceChildren();
-  if (!data.habits.length) {
+  if (!active.length) {
     const empty = el("div", "empty");
     empty.append(
       el("h3", "", "Every streak starts with day one."),
@@ -97,7 +99,7 @@ function render() {
     );
     list.append(empty);
   }
-  for (const h of data.habits) {
+  for (const h of active) {
     const s = stats(h.entries),
       card = el("article", `habit ${h.id === selected ? "selected" : ""}`),
       head = el("div", "habit-head");
@@ -151,11 +153,17 @@ function render() {
         `check ${h.entries[date] ? "done" : "primary"}`,
       ),
     );
+    card.append(button("Set up Siri", () => siriSetup(h), "wide"));
+    card.append(button("Archive category", () => {
+      change(d => { d.habits.find(x=>x.id===h.id).archived=true; });
+      selected=data.habits.find(x=>!x.archived)?.id;
+      render(); notify("Category archived. Restore it in Backup & settings.");
+    }, "wide"));
     list.append(card);
   }
   const h = habit();
-  $("#detail").hidden = !h;
-  if (!h) return;
+  $("#detail").hidden = !h || h.archived;
+  if (!h || h.archived) return;
   $("#detailName").textContent = h.name;
   const s = stats(h.entries);
   $("#totalDays").textContent = `${s.total} total days`;
@@ -417,6 +425,15 @@ $("#backup").onclick = () => {
       download(localStorage.getItem(key) || JSON.stringify(data)),
     ),
   );
+  const archived = data.habits.filter(h => h.archived);
+  $("#fields").append(el("h3","","Archived categories"));
+  if (!archived.length) $("#fields").append(el("p","hint","No archived categories."));
+  for (const h of archived) {
+    $("#fields").append(button("Restore " + h.name, () => {
+      change(d => { d.habits.find(x=>x.id===h.id).archived=false; });
+      selected=h.id; render(); $("#editor").close(); notify("Category restored.");
+    },"wide"));
+  }
   const input = field(
     "Restore a JSON backup (replaces all categories)",
     "file",
@@ -478,3 +495,38 @@ document.addEventListener("visibilitychange", () => {
 render();
 if ("serviceWorker" in navigator)
   navigator.serviceWorker.register("./sw.js").catch(() => {});
+
+function siriSetup(h) {
+  dialog("Set up Siri");
+  const url = new URL(location.pathname, location.origin);
+  url.hash = new URLSearchParams({checkin:h.id}).toString();
+  $("#fields").append(el("p","hint",'In Apple Shortcuts, create a shortcut named “Log '+h.name+'”. Add a URL action with the link below, then an Open URLs action. Say “Hey Siri, Log '+h.name+'”.'));
+  const input = field("Check-in link","text",url.href);
+  input.readOnly = true;
+  input.onclick = () => input.select();
+  $("#fields").append(el("p","hint","Use this with the browser that holds your records. Safari and a Home Screen app may have separate storage. If the category is missing, export your records from the original app and restore them in the browser opened by the shortcut. You may need to unlock your iPhone."));
+  $("#formActions").append(button("Copy link", () => {
+    navigator.clipboard.writeText(url.href).then(()=>notify("Link copied.")).catch(()=>{input.select();$("#formError").textContent="Select and copy the link above.";});
+  },"primary"));
+}
+function handleCheckinLink() {
+  const params = new URLSearchParams(location.hash.slice(1));
+  if (!params.has("checkin")) return;
+  const id = params.get("checkin");
+  history.replaceState(null,"",location.pathname+location.search);
+  try {
+    if (storageBlocked) throw Error("Saved records could not be loaded. Restore a backup before checking in.");
+    // Read fresh storage when an existing browser tab receives another shortcut.
+    const raw = localStorage.getItem(key);
+    const next = raw ? validate(JSON.parse(raw)) : {version:1,habits:[]};
+    const result = markComplete(next,id,today());
+    selected = id;
+    save(next);
+    notify(result.name + (result.already ? " is already complete today." : " checked in for today!"));
+  } catch(error) {
+    dialog("Check-in could not be saved");
+    $("#fields").append(el("p","hint",error.message),el("p","hint","Open this link in the browser containing your records. If you use the Home Screen app, export a backup there and restore it here, then run the shortcut again."));
+  }
+}
+window.addEventListener("hashchange",handleCheckinLink);
+handleCheckinLink();

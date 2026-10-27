@@ -82,6 +82,7 @@ export function validate(data) {
         id: h.id,
         name: h.name.trim(),
         icon: ["✦", "☀", "◉", "♥", "⚡", "☘"].includes(h.icon) ? h.icon : "✦",
+        ...(h.archived === true ? {archived:true} : {}),
         entries,
       };
     }),

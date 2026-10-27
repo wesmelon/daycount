@@ -1,10 +1,11 @@
-const CACHE = "daycount-streaks-v1";
+const CACHE = "daycount-streaks-v2";
 const ASSETS = [
   "./",
   "./index.html",
   "./style.css",
   "./app.mjs",
   "./model.mjs",
+  "./shortcuts.mjs",
   "./manifest.webmanifest",
   "./icon.svg",
   "./apple-touch-icon.png",
