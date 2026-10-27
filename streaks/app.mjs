@@ -115,6 +115,30 @@ function render() {
         "details",
       ),
     );
+    const menu = el("details", "category-menu");
+    const trigger = el("summary", "category-menu-trigger", "⋯");
+    trigger.setAttribute("aria-label", "Options for " + h.name);
+    const actions = el("div", "category-menu-actions");
+    actions.append(
+      button("Set up Siri", () => {
+        menu.open = false;
+        siriSetup(h);
+      }),
+      button("Archive category", () => {
+        menu.open = false;
+        change(d => { d.habits.find(x => x.id === h.id).archived = true; });
+        selected = data.habits.find(x => !x.archived)?.id;
+        render();
+        notify("Category archived. Restore it in Backup & settings.");
+      }),
+    );
+    menu.append(trigger, actions);
+    menu.addEventListener("toggle", () => {
+      if (menu.open) document.querySelectorAll(".category-menu[open]").forEach(other => {
+        if (other !== menu) other.open = false;
+      });
+    });
+    head.append(menu);
     card.append(head, el("h3", "", h.name));
     const metric = el("div");
     metric.append(
@@ -153,12 +177,7 @@ function render() {
         `check ${h.entries[date] ? "done" : "primary"}`,
       ),
     );
-    card.append(button("Set up Siri", () => siriSetup(h), "wide"));
-    card.append(button("Archive category", () => {
-      change(d => { d.habits.find(x=>x.id===h.id).archived=true; });
-      selected=data.habits.find(x=>!x.archived)?.id;
-      render(); notify("Category archived. Restore it in Backup & settings.");
-    }, "wide"));
+
     list.append(card);
   }
   const h = habit();
@@ -530,3 +549,16 @@ function handleCheckinLink() {
 }
 window.addEventListener("hashchange",handleCheckinLink);
 handleCheckinLink();
+
+document.addEventListener("click", event => {
+  document.querySelectorAll(".category-menu[open]").forEach(menu => {
+    if (!menu.contains(event.target)) menu.open = false;
+  });
+});
+document.addEventListener("keydown", event => {
+  if (event.key !== "Escape") return;
+  document.querySelectorAll(".category-menu[open]").forEach(menu => {
+    menu.open = false;
+    menu.querySelector("summary").focus();
+  });
+});

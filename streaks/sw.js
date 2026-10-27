@@ -1,4 +1,4 @@
-const CACHE = "daycount-streaks-v2";
+const CACHE = "daycount-streaks-v3";
 const ASSETS = [
   "./",
   "./index.html",
