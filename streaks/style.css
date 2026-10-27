@@ -444,3 +444,42 @@ textarea {
     }
   }
 }
+
+/* Secondary category actions stay in a compact corner disclosure. */
+.habit-head > .details { margin-left: auto; }
+.category-menu { position: relative; margin-left: 6px; }
+.category-menu[open] { z-index: 2; }
+.category-menu-trigger {
+  list-style: none;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 26px;
+  line-height: 1;
+  color: var(--green);
+}
+.category-menu-trigger::-webkit-details-marker { display: none; }
+.category-menu-trigger:hover, .category-menu[open] > summary { background: #e8eedc; }
+.category-menu-trigger:focus-visible { outline: 3px solid #bd841e; outline-offset: 3px; }
+.category-menu-actions {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  width: 190px;
+  padding: 6px;
+  background: #fffef9;
+  border: 1px solid #dce2d7;
+  border-radius: 14px;
+  box-shadow: 0 8px 28px #17382b26;
+}
+.category-menu-actions button {
+  display: block;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  text-align: left;
+}
+.category-menu-actions button:hover { background: #e8eedc; }
